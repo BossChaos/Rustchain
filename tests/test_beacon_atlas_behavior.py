@@ -54,6 +54,24 @@ class TestBeaconAtlasAPIBehavior(unittest.TestCase):
         # Initialize database tables
         init_beacon_tables(cls.test_db_path)
         
+        # Pre-register Relay Agents required for contract creation tests
+        # The beacon API requires from_agent to exist in relay_agents table
+        # Note: pubkey_hex is NOT NULL, so we provide dummy values
+        with sqlite3.connect(cls.test_db_path) as conn:
+            agents = [
+                'bcn_alice_test', 'bcn_bob_test',
+                'bcn_test_from', 'bcn_test_to',
+                'bcn_claimer', 'bcn_completer',
+                'bcn_reputation_test', 'bcn_chat_test',
+            ]
+            now = int(time.time())
+            for agent in agents:
+                conn.execute(
+                    "INSERT OR IGNORE INTO relay_agents (agent_id, pubkey_hex, name, status, created_at) VALUES (?, ?, ?, 'active', ?)",
+                    (agent, f'dummy_pubkey_{agent}', agent, now)
+                )
+            conn.commit()
+        
         cls.client = cls.app.test_client()
 
     @classmethod
@@ -94,12 +112,12 @@ class TestBeaconAtlasAPIBehavior(unittest.TestCase):
         
         create_response = self.client.post(
             '/api/contracts',
-            data=json.dumps(contract_data),
-            content_type='application/json'
+            json=contract_data,
+            headers={'X-Agent-Key': 'bcn_alice_test'}
         )
-        self.assertEqual(create_response.status_code, 201)
+        self.assertEqual(create_response.status_code, 201, f"Expected 201, got {create_response.status_code}: {create_response.data}")
         
-        created = json.loads(create_response.data)
+        created = create_response.get_json()
         self.assertIn('id', created)
         self.assertEqual(created['from'], 'bcn_alice_test')
         self.assertEqual(created['to'], 'bcn_bob_test')
@@ -114,13 +132,13 @@ class TestBeaconAtlasAPIBehavior(unittest.TestCase):
         self.assertEqual(len(contracts), 1)
         self.assertEqual(contracts[0]['id'], contract_id)
         
-        # Update contract state to active
+        # Update contract state to active (must be done by to_agent / recipient)
         update_response = self.client.put(
             f'/api/contracts/{contract_id}',
-            data=json.dumps({'state': 'active'}),
-            content_type='application/json'
+            json={'state': 'active'},
+            headers={'X-Agent-Key': 'bcn_bob_test'}
         )
-        self.assertEqual(update_response.status_code, 200)
+        self.assertEqual(update_response.status_code, 200, f"Expected 200, got {update_response.status_code}: {update_response.data}")
         
         # Verify state changed
         list_response2 = self.client.get('/api/contracts')
@@ -248,10 +266,11 @@ class TestBeaconAtlasAPIBehavior(unittest.TestCase):
         
         create_response = self.client.post(
             '/api/contracts',
-            data=json.dumps(contract_data),
-            content_type='application/json'
+            json=contract_data,
+            headers={'X-Agent-Key': 'bcn_test_from'}
         )
-        contract_id = json.loads(create_response.data)['id']
+        self.assertEqual(create_response.status_code, 201, f"Expected 201, got {create_response.status_code}: {create_response.data}")
+        contract_id = create_response.get_json()['id']
         
         # Try invalid state
         update_response = self.client.put(
