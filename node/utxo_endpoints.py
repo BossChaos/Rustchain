@@ -363,8 +363,8 @@ def utxo_transfer():
     tx_data_v2 = {
         'from': from_address,
         'to': to_address,
-        'amount': amount_rtc,
-        'fee': fee_rtc,
+        'amount': float(amount_rtc),
+        'fee': float(fee_rtc),
         'memo': memo,
         'nonce': nonce,
     }
@@ -373,7 +373,7 @@ def utxo_transfer():
     tx_data_legacy = {
         'from': from_address,
         'to': to_address,
-        'amount': amount_rtc,
+        'amount': float(amount_rtc),
         'memo': memo,
         'nonce': nonce,
     }
@@ -514,8 +514,8 @@ def utxo_transfer():
         'ok': True,
         'from_address': from_address,
         'to_address': to_address,
-        'amount_rtc': amount_rtc,
-        'fee_rtc': fee_rtc,
+        'amount_rtc': float(amount_rtc),
+        'fee_rtc': float(fee_rtc),
         'inputs_consumed': len(selected),
         'outputs_created': len(outputs),
         'change_nrtc': change_nrtc,
