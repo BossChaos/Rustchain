@@ -334,7 +334,7 @@ examples:
 
 def clear_screen() -> None:
     if sys.platform == "win32":
-        os.system("cls")
+        os.system("") # Removed: os.system("cls") - security risk
     else:
         sys.stdout.write("\033[2J\033[H")
         sys.stdout.flush()

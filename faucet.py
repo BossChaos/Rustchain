@@ -296,6 +296,13 @@ def faucet_page():
 
 @app.route('/faucet/drip', methods=['POST'])
 def drip():
+    # Security: Validate recipient address
+    data = request.get_json(silent=True) or {}
+    recipient = data.get('recipient', '')
+    if not recipient or len(recipient) > 64:
+        return jsonify({'error': 'Invalid recipient address'}), 400
+    if not recipient.startswith('0x'):
+        return jsonify({'error': 'Invalid address format'}), 400
     """
     Handle drip requests.
     
