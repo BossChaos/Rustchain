@@ -495,7 +495,7 @@ class ProofOfIron:
         """Cache features for future comparison"""
         try:
             import sqlite3
-            import pickle
+            import json
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
             
@@ -527,7 +527,6 @@ class ProofOfIron:
         """Load cached features"""
         try:
             import sqlite3
-            import pickle
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
             c.execute('SELECT features FROM feature_cache WHERE hash = ?',
@@ -536,7 +535,7 @@ class ProofOfIron:
             conn.close()
             
             if row:
-                data = pickle.loads(row[0])
+                data = json.loads(row[0])
                 return FingerprintFeatures(
                     mfcc_mean=np.array(data['mfcc_mean']),
                     mfcc_std=np.array(data['mfcc_std']),
