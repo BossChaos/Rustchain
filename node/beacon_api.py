@@ -212,7 +212,7 @@ def beacon_join():
     """
     if request.method == 'OPTIONS':
         resp = jsonify({'ok': True})
-        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Origin'] = 'https://rustchain.io'
         resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         resp.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
         return resp
@@ -331,7 +331,7 @@ def beacon_atlas():
     """
     if request.method == 'OPTIONS':
         resp = jsonify({'ok': True})
-        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Access-Control-Allow-Origin'] = 'https://rustchain.io'
         resp.headers['Access-Control-Allow-Headers'] = 'Content-Type'
         resp.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
         return resp
