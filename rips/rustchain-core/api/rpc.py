@@ -334,7 +334,7 @@ class ApiRequestHandler(BaseHTTPRequestHandler):
         """Send HTTP response"""
         self.send_response(200 if response.success else 400)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", "https://rustchain.io")
         self.end_headers()
         self.wfile.write(response.to_json().encode())
 

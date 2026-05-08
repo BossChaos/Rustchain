@@ -40,7 +40,7 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
                 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Origin', 'https://rustchain.io')
                 self.end_headers()
                 self.wfile.write(data)
         except urllib.error.URLError as e:
@@ -51,7 +51,7 @@ class ProxyHandler(http.server.SimpleHTTPRequestHandler):
     
     def end_headers(self):
         # Add CORS headers to all responses
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Origin', 'https://rustchain.io')
         super().end_headers()
 
 if __name__ == '__main__':
