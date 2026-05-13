@@ -132,8 +132,10 @@ def merge_attestation(attestation: Dict):
                 logger.info(f"Added new attestation for {miner[:16]}...")
             
             conn.commit()
+            return True
     except Exception as e:
         logger.error(f"Failed to merge attestation: {e}")
+        return False
 
 def get_local_hostname() -> str:
     """Get local IP to filter self from peers"""
