@@ -4386,7 +4386,7 @@ def admin_operator_ui():
     if not _wallet_review_ui_authorized(request):
         return jsonify({"ok": False, "error": "forbidden"}), 403
 
-    admin_key = str(request.values.get("admin_key") or "").strip()
+    admin_key = str(request.form.get("admin_key") or "").strip()
     counts = get_wallet_review_counts()
     return render_template_string(
         """
@@ -4423,7 +4423,7 @@ def admin_operator_ui():
   <div class="panel">
     <h2>Review And Moderation</h2>
     <ul>
-      <li><a href="/admin/wallet-review-holds/ui{% if admin_key %}?admin_key={{ admin_key|urlencode }}{% endif %}">Wallet Review Holds UI</a> — create holds, coach miners, release, dismiss, escalate, or block.</li>
+      <li><a href="/admin/wallet-review-holds/ui">Wallet Review Holds UI</a> — create holds, coach miners, release, dismiss, escalate, or block.</li>
     </ul>
   </div>
   <div class="panel">
@@ -4449,7 +4449,7 @@ def admin_wallet_review_holds_ui():
     if not _wallet_review_ui_authorized(request):
         return jsonify({"ok": False, "error": "forbidden"}), 403
 
-    admin_key = str(request.values.get("admin_key") or "").strip()
+    admin_key = str(request.form.get("admin_key") or "").strip()
     active_status = str(request.values.get("status") or "").strip().lower()
 
     if request.method == 'POST':
@@ -4561,13 +4561,13 @@ def admin_wallet_review_holds_ui():
   </style>
 </head>
 <body>
-  <nav><a href="/admin/ui{% if admin_key %}?admin_key={{ admin_key|urlencode }}{% endif %}">admin index</a></nav>
+  <nav><a href="/admin/ui">admin index</a></nav>
   <h1>RustChain Wallet Review Holds</h1>
   <p class="meta">Use this page to create review holds, coach miners, and release or escalate wallets without touching the legacy hard-block list.</p>
   <div class="filters">
-    <a href="/admin/wallet-review-holds/ui{% if admin_key %}?admin_key={{ admin_key|urlencode }}{% endif %}">all</a>
+    <a href="/admin/wallet-review-holds/ui">all</a>
     {% for status_value in statuses %}
-    <a href="/admin/wallet-review-holds/ui?status={{ status_value }}{% if admin_key %}&admin_key={{ admin_key|urlencode }}{% endif %}">{{ status_value }}</a>
+    <a href="/admin/wallet-review-holds/ui?status={{ status_value }}">{{ status_value }}</a>
     {% endfor %}
   </div>
   <div class="panel">
