@@ -100,13 +100,6 @@ def migrate(db_path: str, dry_run: bool = False) -> dict:
     utxo_db = UtxoDB(db_path)
     utxo_db.init_tables()
 
-    # Safety check
-    if check_existing_genesis(utxo_db):
-        print("ERROR: Genesis boxes already exist. Aborting.")
-        print("To re-run, first delete genesis boxes:")
-        print(f"  DELETE FROM utxo_boxes WHERE creation_height = {GENESIS_HEIGHT};")
-        return {'error': 'genesis_already_exists'}
-
     # Load balances
     balances = load_account_balances(db_path)
     if not balances:
@@ -131,6 +124,17 @@ def migrate(db_path: str, dry_run: bool = False) -> dict:
     try:
         if not dry_run:
             conn.execute("BEGIN IMMEDIATE")
+
+            # Check for existing genesis INSIDE the transaction
+            row = conn.execute(
+                "SELECT COUNT(*) AS n FROM utxo_transactions WHERE tx_type = 'genesis'",
+            ).fetchone()
+            if row['n'] > 0:
+                conn.execute("ROLLBACK")
+                print("ERROR: Genesis boxes already exist. Aborting.")
+                print("To re-run, first delete genesis boxes:")
+                print(f"  DELETE FROM utxo_boxes WHERE creation_height = {GENESIS_HEIGHT};")
+                return {'error': 'genesis_already_exists'}
 
         for miner_id, amount_nrtc in balances:
             tx_id = compute_genesis_tx_id(miner_id)
