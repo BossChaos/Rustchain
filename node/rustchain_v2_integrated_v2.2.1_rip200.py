@@ -4068,6 +4068,17 @@ def ingest_signed_header():
     except Exception:
         slot = int(time.time())
 
+    # SECURITY: Reject negative/pre-genesis slots.
+    # A negative slot value would bypass all downstream validation and could
+    # corrupt chain state or cause arithmetic errors in epoch calculations.
+    if slot < 0:
+        return jsonify({
+            "ok": False,
+            "error": "invalid_slot",
+            "message": "Header slot must be non-negative",
+            "submitted_slot": slot,
+        }), 400
+
     # SECURITY: Reject headers with slots too far in the future.
     # Without this check, a malicious miner could submit a header with an
     # extremely high slot value (e.g., 999999999), causing the node to
